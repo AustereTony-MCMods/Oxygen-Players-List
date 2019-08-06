@@ -1,2 +1,5 @@
+0.8.0b
++Performance improvements.
+
 0.1.0a
 +Initial release.
