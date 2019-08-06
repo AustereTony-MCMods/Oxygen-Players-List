@@ -1,35 +1,35 @@
 package austeretony.oxygen_playerslist.client.gui.playerslist;
 
-import austeretony.alternateui.screen.core.AbstractGUIScreen;
 import austeretony.alternateui.screen.core.AbstractGUISection;
 import austeretony.alternateui.screen.core.GUIBaseElement;
 import austeretony.alternateui.screen.core.GUIWorkspace;
-import austeretony.oxygen.common.api.OxygenGUIHelper;
+import austeretony.oxygen.client.gui.SynchronizedGUIScreen;
 import austeretony.oxygen_playerslist.common.main.PlayersListMain;
 import net.minecraft.util.ResourceLocation;
 
-public class PlayersListGUIScreen extends AbstractGUIScreen {
+public class PlayersListGUIScreen extends SynchronizedGUIScreen {
 
-    public static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(PlayersListMain.MODID, "textures/gui/playerslist/background.png");
+    public static final ResourceLocation PLAYERSLIST_MENU_BACKGROUND = new ResourceLocation(PlayersListMain.MODID, "textures/gui/playerslist/playerslist_menu.png");
 
-    protected PlayerListGUISection mainSection;
+    protected PlayersListGUISection playerslistSection;
 
-    private boolean initialized;
+    public PlayersListGUIScreen() {
+        super(PlayersListMain.PLAYER_LIST_MENU_SCREEN_ID);
+    }
 
     @Override
     protected GUIWorkspace initWorkspace() {
-        return new GUIWorkspace(this, 200, 199);
+        return new GUIWorkspace(this, 190, 199);
     }
 
     @Override
     protected void initSections() {
-        this.mainSection = new PlayerListGUISection(this);
-        this.getWorkspace().initSection(this.mainSection);        
+        this.getWorkspace().initSection(this.playerslistSection = new PlayersListGUISection(this));        
     }
 
     @Override
     protected AbstractGUISection getDefaultSection() {
-        return this.mainSection;
+        return this.playerslistSection;
     }
 
     @Override
@@ -41,23 +41,7 @@ public class PlayersListGUIScreen extends AbstractGUIScreen {
     }
 
     @Override
-    public void updateScreen() {    
-        super.updateScreen();
-        if (!this.initialized//reduce map calls
-                && OxygenGUIHelper.isNeedSync(PlayersListMain.PLAYER_LIST_SCREEN_ID)
-                && OxygenGUIHelper.isScreenInitialized(PlayersListMain.PLAYER_LIST_SCREEN_ID)
-                && OxygenGUIHelper.isDataRecieved(PlayersListMain.PLAYER_LIST_SCREEN_ID)) {
-            this.initialized = true;
-            OxygenGUIHelper.resetNeedSync(PlayersListMain.PLAYER_LIST_SCREEN_ID);
-            this.mainSection.sortPlayers(0);
-        }
-    }
-
-    @Override
-    public void onGuiClosed() {
-        super.onGuiClosed();
-        OxygenGUIHelper.resetNeedSync(PlayersListMain.PLAYER_LIST_SCREEN_ID);
-        OxygenGUIHelper.resetScreenInitialized(PlayersListMain.PLAYER_LIST_SCREEN_ID);
-        OxygenGUIHelper.resetDataRecieved(PlayersListMain.PLAYER_LIST_SCREEN_ID);
+    public void loadData() {
+        this.playerslistSection.sortPlayers(0);
     }
 }

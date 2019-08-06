@@ -1,15 +1,17 @@
 package austeretony.oxygen_playerslist.client.gui.playerslist;
 
+import java.util.UUID;
+
 import austeretony.oxygen.client.api.OxygenHelperClient;
 import austeretony.oxygen.client.core.api.ClientReference;
+import austeretony.oxygen.client.gui.IndexedGUIButton;
 import austeretony.oxygen.client.gui.OxygenGUITextures;
-import austeretony.oxygen.client.gui.PlayerGUIButton;
 import austeretony.oxygen.common.api.EnumDimension;
 import austeretony.oxygen.common.main.SharedPlayerData;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.renderer.GlStateManager;
 
-public class PlayerListEntryGUIButton extends PlayerGUIButton {
+public class PlayersListEntryGUIButton extends IndexedGUIButton<UUID> {
 
     private String dimension;
 
@@ -17,7 +19,7 @@ public class PlayerListEntryGUIButton extends PlayerGUIButton {
 
     private boolean initialized;
 
-    public PlayerListEntryGUIButton(SharedPlayerData sharedData) {
+    public PlayersListEntryGUIButton(SharedPlayerData sharedData) {
         super(sharedData.getPlayerUUID());
         this.dimension = EnumDimension.getLocalizedNameFromId(OxygenHelperClient.getPlayerDimension(sharedData));
         this.setDisplayText(sharedData.getUsername());//need for search mechanic
@@ -71,7 +73,7 @@ public class PlayerListEntryGUIButton extends PlayerGUIButton {
             this.mc.getTextureManager().bindTexture(OxygenGUITextures.STATUS_ICONS); 
             drawCustomSizedTexturedRect(7, 3, this.statusIconU, 0, 3, 3, 12, 3);   
             this.mc.getTextureManager().bindTexture(OxygenGUITextures.PING_ICONS); 
-            drawCustomSizedTexturedRect(180, 2, 0, this.pingIconV * 6, 10, 6, 10, 36);  
+            drawCustomSizedTexturedRect(this.getWidth() - 20, 2, 0, this.pingIconV * 6, 10, 6, 10, 36);  
             GlStateManager.popMatrix();
         }
     }
