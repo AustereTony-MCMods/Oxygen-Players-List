@@ -2,12 +2,15 @@ package austeretony.oxygen_playerslist.client.gui.playerslist;
 
 import java.util.UUID;
 
-import austeretony.oxygen.client.api.OxygenHelperClient;
-import austeretony.oxygen.client.core.api.ClientReference;
-import austeretony.oxygen.client.gui.IndexedGUIButton;
-import austeretony.oxygen.client.gui.OxygenGUITextures;
-import austeretony.oxygen.common.api.EnumDimension;
-import austeretony.oxygen.common.main.SharedPlayerData;
+import austeretony.alternateui.util.EnumGUIAlignment;
+import austeretony.oxygen_core.client.api.ClientReference;
+import austeretony.oxygen_core.client.api.OxygenHelperClient;
+import austeretony.oxygen_core.client.gui.IndexedGUIButton;
+import austeretony.oxygen_core.client.gui.OxygenGUITextures;
+import austeretony.oxygen_core.client.gui.elements.CustomRectUtils;
+import austeretony.oxygen_core.client.gui.settings.GUISettings;
+import austeretony.oxygen_core.common.PlayerSharedData;
+import austeretony.oxygen_core.common.api.EnumDimension;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.renderer.GlStateManager;
 
@@ -19,11 +22,11 @@ public class PlayersListEntryGUIButton extends IndexedGUIButton<UUID> {
 
     private boolean initialized;
 
-    public PlayersListEntryGUIButton(SharedPlayerData sharedData) {
+    public PlayersListEntryGUIButton(PlayerSharedData sharedData) {
         super(sharedData.getPlayerUUID());
         this.dimension = EnumDimension.getLocalizedNameFromId(OxygenHelperClient.getPlayerDimension(sharedData));
         this.setDisplayText(sharedData.getUsername());//need for search mechanic
-        this.statusIconU = OxygenHelperClient.getPlayerStatus(sharedData).ordinal() * 3;
+        this.statusIconU = OxygenHelperClient.getPlayerActivityStatus(sharedData).ordinal() * 3;
         NetworkPlayerInfo info = ClientReference.getPlayerInfo(sharedData.getPlayerUUID());
         int responseTime = 1000;
         if (info != null)//mc may sync data faster than oxygen, so NetworkPlayerInfo may be null if player left the game
@@ -40,6 +43,8 @@ public class PlayersListEntryGUIButton extends IndexedGUIButton<UUID> {
             this.pingIconV = 3;
         else
             this.pingIconV = 4;
+        this.setDynamicBackgroundColor(GUISettings.get().getEnabledElementColor(), GUISettings.get().getDisabledElementColor(), GUISettings.get().getHoveredElementColor());
+        this.setTextDynamicColor(GUISettings.get().getEnabledTextColor(), GUISettings.get().getDisabledTextColor(), GUISettings.get().getHoveredTextColor());
     }
 
     @Override
@@ -47,6 +52,8 @@ public class PlayersListEntryGUIButton extends IndexedGUIButton<UUID> {
         if (this.isVisible()) {  
             GlStateManager.pushMatrix();           
             GlStateManager.translate(this.getX(), this.getY(), 0.0F);
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);  
+
             int color, textColor, textY;                      
             if (!this.isEnabled()) {                 
                 color = this.getDisabledBackgroundColor();
@@ -58,22 +65,33 @@ public class PlayersListEntryGUIButton extends IndexedGUIButton<UUID> {
                 color = this.getEnabledBackgroundColor(); 
                 textColor = this.getEnabledTextColor();      
             }
-            drawRect(0, 0, this.getWidth(), this.getHeight(), color);
+
+            int third = this.getWidth() / 3;
+            CustomRectUtils.drawGradientRect(0.0D, 0.0D, third, this.getHeight(), 0x00000000, color, EnumGUIAlignment.RIGHT);
+            drawRect(third, 0, this.getWidth() - third, this.getHeight(), color);
+            CustomRectUtils.drawGradientRect(this.getWidth() - third, 0.0D, this.getWidth(), this.getHeight(), 0x00000000, color, EnumGUIAlignment.LEFT);
+
             textY = (this.getHeight() - this.textHeight(this.getTextScale())) / 2 + 1;
+
             GlStateManager.pushMatrix();           
-            GlStateManager.translate(24.0F, textY, 0.0F); 
+            GlStateManager.translate(20.0F, textY, 0.0F); 
             GlStateManager.scale(this.getTextScale(), this.getTextScale(), 0.0F); 
             this.mc.fontRenderer.drawString(this.getDisplayText(), 0, 0, textColor, this.isTextShadowEnabled());
             GlStateManager.popMatrix();
+
             GlStateManager.pushMatrix();    
-            GlStateManager.translate(100.0F, textY, 0.0F); 
+            GlStateManager.translate(86.0F, textY, 0.0F); 
             GlStateManager.scale(this.getTextScale(), this.getTextScale(), 0.0F); 
             this.mc.fontRenderer.drawString(this.dimension, 0, 0, textColor, this.isTextShadowEnabled());
             GlStateManager.popMatrix();
+
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);  
+
             this.mc.getTextureManager().bindTexture(OxygenGUITextures.STATUS_ICONS); 
-            drawCustomSizedTexturedRect(7, 3, this.statusIconU, 0, 3, 3, 12, 3);   
+            drawCustomSizedTexturedRect(7, 4, this.statusIconU, 0, 3, 3, 12, 3);   
             this.mc.getTextureManager().bindTexture(OxygenGUITextures.PING_ICONS); 
             drawCustomSizedTexturedRect(this.getWidth() - 20, 2, 0, this.pingIconV * 6, 10, 6, 10, 36);  
+
             GlStateManager.popMatrix();
         }
     }

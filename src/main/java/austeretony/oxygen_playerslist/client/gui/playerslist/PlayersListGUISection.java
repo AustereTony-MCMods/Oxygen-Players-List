@@ -4,34 +4,26 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import austeretony.alternateui.screen.browsing.GUIScroller;
-import austeretony.alternateui.screen.button.GUIButton;
-import austeretony.alternateui.screen.button.GUISlider;
-import austeretony.alternateui.screen.contextmenu.AbstractContextAction;
-import austeretony.alternateui.screen.contextmenu.GUIContextMenu;
 import austeretony.alternateui.screen.core.AbstractGUISection;
 import austeretony.alternateui.screen.core.GUIBaseElement;
-import austeretony.alternateui.screen.image.GUIImageLabel;
-import austeretony.alternateui.screen.list.GUIDropDownList;
-import austeretony.alternateui.screen.panel.GUIButtonPanel;
-import austeretony.alternateui.screen.text.GUITextField;
-import austeretony.alternateui.screen.text.GUITextLabel;
-import austeretony.alternateui.util.EnumGUIAlignment;
-import austeretony.alternateui.util.EnumGUIOrientation;
-import austeretony.oxygen.client.OxygenManagerClient;
-import austeretony.oxygen.client.api.OxygenGUIHelper;
-import austeretony.oxygen.client.api.OxygenHelperClient;
-import austeretony.oxygen.client.core.api.ClientReference;
-import austeretony.oxygen.client.gui.IndexedGUIDropDownElement;
-import austeretony.oxygen.client.gui.OxygenGUITextures;
-import austeretony.oxygen.client.gui.settings.GUISettings;
-import austeretony.oxygen.client.privilege.api.PrivilegeProviderClient;
-import austeretony.oxygen.common.main.EnumOxygenPrivilege;
-import austeretony.oxygen.common.main.OxygenMain;
-import austeretony.oxygen.common.main.OxygenPlayerData.EnumActivityStatus;
-import austeretony.oxygen.common.main.OxygenSoundEffects;
-import austeretony.oxygen.common.main.SharedPlayerData;
-import austeretony.oxygen.util.MathUtils;
+import austeretony.oxygen_core.client.OxygenManagerClient;
+import austeretony.oxygen_core.client.api.ClientReference;
+import austeretony.oxygen_core.client.api.OxygenGUIHelper;
+import austeretony.oxygen_core.client.api.OxygenHelperClient;
+import austeretony.oxygen_core.client.api.PrivilegeProviderClient;
+import austeretony.oxygen_core.client.gui.elements.ActivityStatusGUIDDList;
+import austeretony.oxygen_core.client.gui.elements.OxygenGUIButtonPanel;
+import austeretony.oxygen_core.client.gui.elements.OxygenGUIContextMenu;
+import austeretony.oxygen_core.client.gui.elements.OxygenGUIContextMenuElement.ContextMenuAction;
+import austeretony.oxygen_core.client.gui.elements.OxygenGUIText;
+import austeretony.oxygen_core.client.gui.elements.OxygenGUITextField;
+import austeretony.oxygen_core.client.gui.elements.OxygenSorterGUIElement;
+import austeretony.oxygen_core.client.gui.elements.OxygenSorterGUIElement.EnumSorting;
+import austeretony.oxygen_core.client.gui.settings.GUISettings;
+import austeretony.oxygen_core.common.PlayerSharedData;
+import austeretony.oxygen_core.common.main.EnumOxygenPrivilege;
+import austeretony.oxygen_core.common.util.MathUtils;
+import austeretony.oxygen_core.server.OxygenPlayerData.EnumActivityStatus;
 import austeretony.oxygen_playerslist.client.input.PlayersListKeyHandler;
 import austeretony.oxygen_playerslist.common.main.PlayersListMain;
 
@@ -39,21 +31,15 @@ public class PlayersListGUISection extends AbstractGUISection {
 
     private final PlayersListGUIScreen screen;
 
-    private GUIButton searchButton, refreshButton, sortDownStatusButton, sortUpStatusButton, sortDownUsernameButton, sortUpUsernameButton;
+    private OxygenGUIText playersOnlineTextLabel;
 
-    private PlayersListEntryGUIButton currentEntry;
+    private ActivityStatusGUIDDList activityStatusDDList;
 
-    private GUITextLabel playersOnlineTextLabel, playerNameTextLabel;
+    private OxygenSorterGUIElement statusSorter, usernameSorter;
 
-    private GUITextField searchField;
+    private OxygenGUITextField searchField;
 
-    private GUIButtonPanel playersPanel;
-
-    private GUIDropDownList statusDropDownList;
-
-    private GUIImageLabel statusImageLabel;
-
-    private EnumActivityStatus clientStatus;
+    private OxygenGUIButtonPanel playersPanel;
 
     public PlayersListGUISection(PlayersListGUIScreen screen) {
         super(screen);
@@ -63,178 +49,99 @@ public class PlayersListGUISection extends AbstractGUISection {
     @Override
     public void init() {
         this.addElement(new PlayersListGUIFiller(0, 0, this.getWidth(), this.getHeight()));
-        this.addElement(new GUITextLabel(2, 4).setDisplayText(ClientReference.localize("oxygen_playerslist.gui.playerslist.title"), false, GUISettings.instance().getTitleScale()));
+        this.addElement(new OxygenGUIText(4, 5, ClientReference.localize("oxygen_playerslist.gui.playerslist.title"), GUISettings.get().getTitleScale(), GUISettings.get().getEnabledTextColor()));
 
-        this.addElement(this.searchButton = new GUIButton(4, 15, 7, 7).setSound(OxygenSoundEffects.BUTTON_CLICK.soundEvent).setTexture(OxygenGUITextures.SEARCH_ICONS, 7, 7).initSimpleTooltip(ClientReference.localize("oxygen.tooltip.search"), GUISettings.instance().getTooltipScale()));         
-        this.addElement(this.refreshButton = new GUIButton(79, 14, 10, 10).setSound(OxygenSoundEffects.BUTTON_CLICK.soundEvent).setTexture(OxygenGUITextures.REFRESH_ICONS, 9, 9).initSimpleTooltip(ClientReference.localize("oxygen.tooltip.refresh"), GUISettings.instance().getTooltipScale()));         
-        this.addElement(this.playerNameTextLabel = new GUITextLabel(91, 15).setDisplayText(OxygenHelperClient.getSharedClientPlayerData().getUsername(), false, GUISettings.instance().getSubTextScale()));
-        this.addElement(this.playersOnlineTextLabel = new GUITextLabel(0, 15).setTextScale(GUISettings.instance().getSubTextScale())); 
+        this.addElement(this.playersOnlineTextLabel = new OxygenGUIText(0, 17, "", GUISettings.get().getSubTextScale() - 0.05F, GUISettings.get().getEnabledTextColor())); 
 
-        this.addElement(this.sortDownStatusButton = new GUIButton(7, 29, 3, 3).setSound(OxygenSoundEffects.BUTTON_CLICK.soundEvent).setTexture(OxygenGUITextures.SORT_DOWN_ICONS, 3, 3).initSimpleTooltip(ClientReference.localize("oxygen.tooltip.sort"), GUISettings.instance().getTooltipScale())); 
-        this.addElement(this.sortUpStatusButton = new GUIButton(7, 25, 3, 3).setSound(OxygenSoundEffects.BUTTON_CLICK.soundEvent).setTexture(OxygenGUITextures.SORT_UP_ICONS, 3, 3).initSimpleTooltip(ClientReference.localize("oxygen.tooltip.sort"), GUISettings.instance().getTooltipScale())); 
-        this.addElement(this.sortDownUsernameButton = new GUIButton(19, 29, 3, 3).setSound(OxygenSoundEffects.BUTTON_CLICK.soundEvent).setTexture(OxygenGUITextures.SORT_DOWN_ICONS, 3, 3).initSimpleTooltip(ClientReference.localize("oxygen.tooltip.sort"), GUISettings.instance().getTooltipScale())); 
-        this.addElement(this.sortUpUsernameButton = new GUIButton(19, 25, 3, 3).setSound(OxygenSoundEffects.BUTTON_CLICK.soundEvent).setTexture(OxygenGUITextures.SORT_UP_ICONS, 3, 3).initSimpleTooltip(ClientReference.localize("oxygen.tooltip.sort"), GUISettings.instance().getTooltipScale())); 
-        this.addElement(new GUITextLabel(24, 25).setDisplayText(ClientReference.localize("oxygen.gui.username")).setTextScale(GUISettings.instance().getSubTextScale())); 
-        this.addElement(new GUITextLabel(100, 25).setDisplayText(ClientReference.localize("oxygen.gui.dimension")).setTextScale(GUISettings.instance().getSubTextScale())); 
+        this.addElement(this.statusSorter = new OxygenSorterGUIElement(13, 25, EnumSorting.DOWN, ClientReference.localize("oxygen.sorting.status")));   
 
-        this.playersPanel = new GUIButtonPanel(EnumGUIOrientation.VERTICAL, 0, 35, this.getWidth() - 3, 10).setButtonsOffset(1).setTextScale(GUISettings.instance().getPanelTextScale());
-        this.addElement(this.playersPanel);
-        this.addElement(this.searchField = new GUITextField(0, 14, 76, 9, 20).setTextScale(GUISettings.instance().getSubTextScale())
-                .enableDynamicBackground(GUISettings.instance().getEnabledTextFieldColor(), GUISettings.instance().getDisabledTextFieldColor(), GUISettings.instance().getHoveredTextFieldColor())
-                .setLineOffset(3).setDisplayText("...").disableFull().cancelDraggedElementLogic());
+        this.statusSorter.setClickListener((sorting)->{
+            this.usernameSorter.reset();
+            if (sorting == EnumSorting.DOWN)
+                this.sortPlayers(0);
+            else
+                this.sortPlayers(1);
+        });
+
+        this.addElement(this.usernameSorter = new OxygenSorterGUIElement(19, 25, EnumSorting.INACTIVE, ClientReference.localize("oxygen.sorting.username")));  
+
+        this.usernameSorter.setClickListener((sorting)->{
+            this.statusSorter.reset();
+            if (sorting == EnumSorting.DOWN)
+                this.sortPlayers(2);
+            else
+                this.sortPlayers(3);
+        });
+
+        this.addElement(this.playersPanel = new OxygenGUIButtonPanel(this.screen, 6, 30, this.getWidth() - 15, 10, 1, MathUtils.clamp(OxygenHelperClient.getMaxPlayers(), 15, 1000), 15, GUISettings.get().getPanelTextScale(), true));
+        this.addElement(this.searchField = new OxygenGUITextField(84, 16, 70, 8, 24, "...", 3, false, - 1L));
         this.playersPanel.initSearchField(this.searchField);
-        GUIScroller scroller = new GUIScroller(MathUtils.clamp(OxygenHelperClient.getMaxPlayers(), 15, 1000), 15);
-        this.playersPanel.initScroller(scroller);
-        GUISlider slider = new GUISlider(this.getWidth() - 2, 35, 2, this.getHeight() - 35);
-        slider.setDynamicBackgroundColor(GUISettings.instance().getEnabledSliderColor(), GUISettings.instance().getDisabledSliderColor(), GUISettings.instance().getHoveredSliderColor());
-        scroller.initSlider(slider);   
 
-        GUIContextMenu menu = new GUIContextMenu(GUISettings.instance().getContextMenuWidth(), 10).setScale(GUISettings.instance().getContextMenuScale()).setTextScale(GUISettings.instance().getTextScale()).setTextAlignment(EnumGUIAlignment.LEFT, 2);
-        menu.setOpenSound(OxygenSoundEffects.CONTEXT_OPEN.soundEvent);
-        menu.setCloseSound(OxygenSoundEffects.CONTEXT_CLOSE.soundEvent);
-        this.playersPanel.initContextMenu(menu);
-        menu.enableDynamicBackground(GUISettings.instance().getEnabledContextActionColor(), GUISettings.instance().getDisabledContextActionColor(), GUISettings.instance().getHoveredContextActionColor());
-        menu.setTextDynamicColor(GUISettings.instance().getEnabledTextColor(), GUISettings.instance().getDisabledTextColor(), GUISettings.instance().getHoveredTextColor());
+        List<ContextMenuAction> actions = OxygenManagerClient.instance().getGUIManager().getContextActions(PlayersListMain.PLAYER_LIST_MENU_SCREEN_ID);
+        ContextMenuAction[] array = new ContextMenuAction[actions.size()];
+        actions.toArray(array);
+        this.playersPanel.initContextMenu(new OxygenGUIContextMenu(GUISettings.get().getContextMenuWidth(), 9, array));
 
-        //Support
-        for (AbstractContextAction action : OxygenGUIHelper.getContextActions(PlayersListMain.PLAYER_LIST_MENU_SCREEN_ID))
-            menu.addElement(action);
+        this.addElement(this.activityStatusDDList = new ActivityStatusGUIDDList(7, 16));
 
-        this.clientStatus = OxygenHelperClient.getClientPlayerStatus();
-        int statusOffset = this.playerNameTextLabel.getX() + this.textWidth(this.playerNameTextLabel.getDisplayText(), GUISettings.instance().getSubTextScale());
-        this.addElement(this.statusImageLabel = new GUIImageLabel(statusOffset + 4, 17).setTexture(OxygenGUITextures.STATUS_ICONS, 3, 3, this.clientStatus.ordinal() * 3, 0, 12, 3));   
-        this.statusDropDownList = new GUIDropDownList(statusOffset + 10, 16, GUISettings.instance().getDropDownListWidth(), 10).setScale(GUISettings.instance().getDropDownListScale()).setDisplayText(this.clientStatus.localizedName()).setTextScale(GUISettings.instance().getTextScale()).setTextAlignment(EnumGUIAlignment.LEFT, 1);
-        this.statusDropDownList.setOpenSound(OxygenSoundEffects.DROP_DOWN_LIST_OPEN.soundEvent);
-        this.statusDropDownList.setCloseSound(OxygenSoundEffects.CONTEXT_CLOSE.soundEvent);
-        IndexedGUIDropDownElement<EnumActivityStatus> profileElement;
-        for (EnumActivityStatus status : EnumActivityStatus.values()) {
-            profileElement = new IndexedGUIDropDownElement(status);
-            profileElement.setDisplayText(status.localizedName());
-            profileElement.enableDynamicBackground(GUISettings.instance().getEnabledContextActionColor(), GUISettings.instance().getDisabledContextActionColor(), GUISettings.instance().getHoveredContextActionColor());
-            profileElement.setTextDynamicColor(GUISettings.instance().getEnabledTextColor(), GUISettings.instance().getDisabledTextColor(), GUISettings.instance().getHoveredTextColor());
-            this.statusDropDownList.addElement(profileElement);
-        }
-        this.addElement(this.statusDropDownList);   
+        this.activityStatusDDList.setActivityStatusChangeListener((status)->{
+            this.statusSorter.setSorting(EnumSorting.DOWN);
+            this.usernameSorter.reset();
+            this.sortPlayers(0);
+        });
     }
 
-    public void sortPlayers(int mode) {
-        List<SharedPlayerData> players = OxygenHelperClient.getSharedPlayersData()
+    private void sortPlayers(int mode) {
+        List<PlayerSharedData> players = OxygenHelperClient.getPlayersSharedData()
                 .stream()
-                .filter(s->OxygenHelperClient.isOnline(s.getPlayerUUID()) 
-                        && (OxygenHelperClient.getPlayerStatus(s) != EnumActivityStatus.OFFLINE || PrivilegeProviderClient.getPrivilegeValue(EnumOxygenPrivilege.EXPOSE_PLAYERS_OFFLINE.toString(), false)))
+                .filter(s->OxygenHelperClient.isPlayerOnline(s.getPlayerUUID()) 
+                        && (isClientPlayer(s) || OxygenHelperClient.getPlayerActivityStatus(s) != EnumActivityStatus.OFFLINE || PrivilegeProviderClient.getValue(EnumOxygenPrivilege.EXPOSE_PLAYERS_OFFLINE.toString(), false)))
                 .collect(Collectors.toList());
 
         if (mode == 0)
-            Collections.sort(players, (s1, s2)->OxygenHelperClient.getPlayerStatus(s1).ordinal() - OxygenHelperClient.getPlayerStatus(s2).ordinal());
+            Collections.sort(players, (s1, s2)->OxygenHelperClient.getPlayerActivityStatus(s1).ordinal() - OxygenHelperClient.getPlayerActivityStatus(s2).ordinal());
         else if (mode == 1)
-            Collections.sort(players, (s1, s2)->OxygenHelperClient.getPlayerStatus(s2).ordinal() - OxygenHelperClient.getPlayerStatus(s1).ordinal());
+            Collections.sort(players, (s1, s2)->OxygenHelperClient.getPlayerActivityStatus(s2).ordinal() - OxygenHelperClient.getPlayerActivityStatus(s1).ordinal());
         else if (mode == 2)
             Collections.sort(players, (s1, s2)->s1.getUsername().compareTo(s2.getUsername()));
         else if (mode == 3)
             Collections.sort(players, (s1, s2)->s2.getUsername().compareTo(s1.getUsername()));
 
         this.playersPanel.reset();
-        PlayersListEntryGUIButton button;
-        for (SharedPlayerData sharedData : players) {            
-            button = new PlayersListEntryGUIButton(sharedData);
-            button.enableDynamicBackground(GUISettings.instance().getEnabledElementColor(), GUISettings.instance().getDisabledElementColor(), GUISettings.instance().getHoveredElementColor());
-            button.setTextDynamicColor(GUISettings.instance().getEnabledTextColor(), GUISettings.instance().getDisabledTextColor(), GUISettings.instance().getHoveredTextColor());
-            this.playersPanel.addButton(button);
-        }
+        for (PlayerSharedData sharedData : players)
+            this.playersPanel.addButton(new PlayersListEntryGUIButton(sharedData));
 
         this.playersPanel.getScroller().resetPosition();
         this.playersPanel.getScroller().getSlider().reset();
+        
+        this.playersPanel.getScroller().updateRowsAmount(MathUtils.clamp(players.size(), 15, OxygenHelperClient.getMaxPlayers()));
 
         this.searchField.reset();
 
-        this.playersOnlineTextLabel.setDisplayText(players.size() + " / " + OxygenHelperClient.getMaxPlayers());
-        this.playersOnlineTextLabel.setX(this.getWidth() - 4 - this.textWidth(this.playersOnlineTextLabel.getDisplayText(), GUISettings.instance().getSubTextScale()));
+        this.playersOnlineTextLabel.setDisplayText(String.valueOf(players.size()) + "/" + String.valueOf(OxygenHelperClient.getMaxPlayers()));
+        this.playersOnlineTextLabel.setX(this.getWidth() - 6 - this.textWidth(this.playersOnlineTextLabel.getDisplayText(), GUISettings.get().getSubTextScale() - 0.05F));
+    }
 
-        this.sortUpStatusButton.toggle();
-        this.sortDownStatusButton.setToggled(false);
-        this.sortDownUsernameButton.setToggled(false);
-        this.sortUpUsernameButton.setToggled(false);
+    private static boolean isClientPlayer(PlayerSharedData sharedData) {
+        return sharedData.getPlayerUUID().equals(OxygenHelperClient.getPlayerUUID());
     }
 
     @Override
-    public void handleElementClick(AbstractGUISection section, GUIBaseElement element, int mouseButton) {
-        if (mouseButton == 0) {
-            if (element == this.searchButton) {
-                this.searchField.enableFull();
-                this.searchButton.disableFull();
-            } else if (element == this.refreshButton)
-                this.sortPlayers(0);
-            else if (element == this.sortDownStatusButton) {
-                if (!this.sortDownStatusButton.isToggled()) {
-                    this.sortPlayers(1);
-                    this.sortUpStatusButton.setToggled(false);
-                    this.sortDownStatusButton.toggle(); 
-
-                    this.sortDownUsernameButton.setToggled(false);
-                    this.sortUpUsernameButton.setToggled(false);
-                }
-            } else if (element == this.sortUpStatusButton) {
-                if (!this.sortUpStatusButton.isToggled()) {
-                    this.sortPlayers(0);
-                    this.sortDownStatusButton.setToggled(false);
-                    this.sortUpStatusButton.toggle();
-
-                    this.sortDownUsernameButton.setToggled(false);
-                    this.sortUpUsernameButton.setToggled(false);
-                }
-            } else if (element == this.sortDownUsernameButton) {
-                if (!this.sortDownUsernameButton.isToggled()) {
-                    this.sortPlayers(3);
-                    this.sortUpUsernameButton.setToggled(false);
-                    this.sortDownUsernameButton.toggle(); 
-
-                    this.sortDownStatusButton.setToggled(false);
-                    this.sortUpStatusButton.setToggled(false);
-                }
-            } else if (element == this.sortUpUsernameButton) {
-                if (!this.sortUpUsernameButton.isToggled()) {
-                    this.sortPlayers(2);
-                    this.sortDownUsernameButton.setToggled(false);
-                    this.sortUpUsernameButton.toggle();
-
-                    this.sortDownStatusButton.setToggled(false);
-                    this.sortUpStatusButton.setToggled(false);
-                }
-            } else if (element instanceof IndexedGUIDropDownElement) {
-                IndexedGUIDropDownElement<EnumActivityStatus> profileButton = (IndexedGUIDropDownElement) element;
-                if (profileButton.index != this.clientStatus) {
-                    OxygenManagerClient.instance().changeActivityStatusSynced(profileButton.index);
-                    this.clientStatus = profileButton.index;
-                    this.statusImageLabel.setTextureUV(profileButton.index.ordinal() * 3, 0);
-                    OxygenHelperClient.getSharedClientPlayerData().setByte(OxygenMain.ACTIVITY_STATUS_SHARED_DATA_ID, profileButton.index.ordinal());
-                    this.sortPlayers(0);
-                }
-            } 
-        }
-        if (element instanceof PlayersListEntryGUIButton) {
-            PlayersListEntryGUIButton entry = (PlayersListEntryGUIButton) element;
-            if (entry != this.currentEntry)
-                this.currentEntry = entry;
-        }
-    }
+    public void handleElementClick(AbstractGUISection section, GUIBaseElement element, int mouseButton) {}
 
     @Override
-    public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) {
-        if (this.searchField.isEnabled() && !this.searchField.isHovered()) {
-            this.searchButton.enableFull();
-            this.searchField.disableFull();
-        }
-        return super.mouseClicked(mouseX, mouseY, mouseButton);              
-    }
-
-    @Override
-    public boolean keyTyped(char typedChar, int keyCode) {   
-        if (keyCode == PlayersListKeyHandler.PLAYERS_LIST.getKeyCode() && !this.searchField.isDragged() && !this.hasCurrentCallback())
-            this.screen.close();
+    public boolean keyTyped(char typedChar, int keyCode) {
+        if (!this.searchField.isDragged() && !this.hasCurrentCallback())
+            if (OxygenGUIHelper.isOxygenMenuEnabled()) {
+                if (keyCode == PlayersListGUIScreen.PLAYERS_LIST_MENU_ENTRY.getIndex() + 2)
+                    this.screen.close();
+            } else if (keyCode == PlayersListKeyHandler.PLAYERS_LIST.getKeyCode())
+                this.screen.close();
         return super.keyTyped(typedChar, keyCode); 
     }
 
-    public PlayersListEntryGUIButton getCurrentEntry() {
-        return this.currentEntry;
+    public void sharedDataSynchronized() {
+        this.activityStatusDDList.updateActivityStatus();
+        this.sortPlayers(0);
     }
 }
