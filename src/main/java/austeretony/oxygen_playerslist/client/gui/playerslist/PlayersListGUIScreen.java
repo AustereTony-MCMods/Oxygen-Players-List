@@ -20,7 +20,7 @@ public class PlayersListGUIScreen extends AbstractGUIScreen {
 
     @Override
     protected GUIWorkspace initWorkspace() {
-        return new GUIWorkspace(this, 190, 196);
+        return new GUIWorkspace(this, 190, 198);
     }
 
     @Override

@@ -20,7 +20,7 @@ import net.minecraftforge.fml.relauncher.Side;
         modid = PlayersListMain.MODID, 
         name = PlayersListMain.NAME, 
         version = PlayersListMain.VERSION,
-        dependencies = "required-after:oxygen_core@[0.9.0,);",
+        dependencies = "required-after:oxygen_core@[0.9.2,);",
         clientSideOnly = true,
         certificateFingerprint = "@FINGERPRINT@",
         updateJSON = PlayersListMain.VERSIONS_FORGE_URL)
@@ -29,7 +29,7 @@ public class PlayersListMain {
     public static final String 
     MODID = "oxygen_playerslist",    
     NAME = "Oxygen: Players List",
-    VERSION = "0.9.0",
+    VERSION = "0.9.1",
     VERSION_CUSTOM = VERSION + ":beta:0",
     GAME_VERSION = "1.12.2",
     VERSIONS_FORGE_URL = "https://raw.githubusercontent.com/AustereTony-MCMods/Oxygen-Players-List/info/mod_versions_forge.json";

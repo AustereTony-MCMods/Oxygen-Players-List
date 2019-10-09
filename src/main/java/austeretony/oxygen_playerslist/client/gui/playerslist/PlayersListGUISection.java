@@ -51,9 +51,9 @@ public class PlayersListGUISection extends AbstractGUISection {
         this.addElement(new PlayersListGUIFiller(0, 0, this.getWidth(), this.getHeight()));
         this.addElement(new OxygenGUIText(4, 5, ClientReference.localize("oxygen_playerslist.gui.playerslist.title"), GUISettings.get().getTitleScale(), GUISettings.get().getEnabledTextColor()));
 
-        this.addElement(this.playersOnlineTextLabel = new OxygenGUIText(0, 17, "", GUISettings.get().getSubTextScale() - 0.05F, GUISettings.get().getEnabledTextColor())); 
+        this.addElement(this.playersOnlineTextLabel = new OxygenGUIText(0, 18, "", GUISettings.get().getSubTextScale() - 0.05F, GUISettings.get().getEnabledTextColor())); 
 
-        this.addElement(this.statusSorter = new OxygenSorterGUIElement(13, 25, EnumSorting.DOWN, ClientReference.localize("oxygen.sorting.status")));   
+        this.addElement(this.statusSorter = new OxygenSorterGUIElement(13, 27, EnumSorting.DOWN, ClientReference.localize("oxygen.sorting.status")));   
 
         this.statusSorter.setClickListener((sorting)->{
             this.usernameSorter.reset();
@@ -63,7 +63,7 @@ public class PlayersListGUISection extends AbstractGUISection {
                 this.sortPlayers(1);
         });
 
-        this.addElement(this.usernameSorter = new OxygenSorterGUIElement(19, 25, EnumSorting.INACTIVE, ClientReference.localize("oxygen.sorting.username")));  
+        this.addElement(this.usernameSorter = new OxygenSorterGUIElement(19, 27, EnumSorting.INACTIVE, ClientReference.localize("oxygen.sorting.username")));  
 
         this.usernameSorter.setClickListener((sorting)->{
             this.statusSorter.reset();
@@ -73,8 +73,8 @@ public class PlayersListGUISection extends AbstractGUISection {
                 this.sortPlayers(3);
         });
 
-        this.addElement(this.playersPanel = new OxygenGUIButtonPanel(this.screen, 6, 30, this.getWidth() - 15, 10, 1, MathUtils.clamp(OxygenHelperClient.getMaxPlayers(), 15, 1000), 15, GUISettings.get().getPanelTextScale(), true));
-        this.addElement(this.searchField = new OxygenGUITextField(84, 16, 70, 8, 24, "...", 3, false, - 1L));
+        this.addElement(this.playersPanel = new OxygenGUIButtonPanel(this.screen, 6, 32, this.getWidth() - 15, 10, 1, MathUtils.clamp(OxygenHelperClient.getMaxPlayers(), 15, 1000), 15, GUISettings.get().getPanelTextScale(), true));
+        this.addElement(this.searchField = new OxygenGUITextField(90, 16, 60, 8, 24, "...", 3, false, - 1L));
         this.playersPanel.initSearchField(this.searchField);
 
         List<ContextMenuAction> actions = OxygenManagerClient.instance().getGUIManager().getContextActions(PlayersListMain.PLAYER_LIST_MENU_SCREEN_ID);

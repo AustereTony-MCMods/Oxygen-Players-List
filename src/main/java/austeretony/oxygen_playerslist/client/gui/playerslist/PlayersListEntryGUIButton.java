@@ -74,13 +74,13 @@ public class PlayersListEntryGUIButton extends IndexedGUIButton<UUID> {
             textY = (this.getHeight() - this.textHeight(this.getTextScale())) / 2 + 1;
 
             GlStateManager.pushMatrix();           
-            GlStateManager.translate(20.0F, textY, 0.0F); 
+            GlStateManager.translate(18.0F, textY, 0.0F); 
             GlStateManager.scale(this.getTextScale(), this.getTextScale(), 0.0F); 
             this.mc.fontRenderer.drawString(this.getDisplayText(), 0, 0, textColor, this.isTextShadowEnabled());
             GlStateManager.popMatrix();
 
             GlStateManager.pushMatrix();    
-            GlStateManager.translate(86.0F, textY, 0.0F); 
+            GlStateManager.translate(90.0F, textY, 0.0F); 
             GlStateManager.scale(this.getTextScale(), this.getTextScale(), 0.0F); 
             this.mc.fontRenderer.drawString(this.dimension, 0, 0, textColor, this.isTextShadowEnabled());
             GlStateManager.popMatrix();
