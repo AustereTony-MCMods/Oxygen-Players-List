@@ -3,22 +3,29 @@ package austeretony.oxygen_playerslist.client.input;
 import org.lwjgl.input.Keyboard;
 
 import austeretony.oxygen_core.client.api.ClientReference;
-import austeretony.oxygen_playerslist.client.gui.playerslist.PlayersListGUIScreen;
+import austeretony.oxygen_core.client.api.OxygenGUIHelper;
+import austeretony.oxygen_playerslist.client.gui.playerslist.PlayersListScreen;
+import austeretony.oxygen_playerslist.common.config.PlayersListConfig;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
 
 public class PlayersListKeyHandler {
 
-    public static final KeyBinding PLAYERS_LIST = new KeyBinding("key.oxygen_playerslist.openPlayersList", Keyboard.KEY_TAB, "Oxygen");
+    private KeyBinding playersListKeybinding;
 
-    public PlayersListKeyHandler() {
-        ClientReference.registerKeyBinding(PLAYERS_LIST);
+    public PlayersListKeyHandler() {        
+        if (PlayersListConfig.ENABLE_PLAYERSLIST_KEY.asBoolean() && !OxygenGUIHelper.isOxygenMenuEnabled())
+            ClientReference.registerKeyBinding(this.playersListKeybinding = new KeyBinding("key.oxygen_playerslist.playersList", Keyboard.KEY_TAB, "Oxygen")); 
     }
 
     @SubscribeEvent
     public void onKeyInput(KeyInputEvent event) {        
-        if (PLAYERS_LIST.isPressed())
-            ClientReference.displayGuiScreen(new PlayersListGUIScreen());
+        if (this.playersListKeybinding != null && this.playersListKeybinding.isPressed())
+            ClientReference.displayGuiScreen(new PlayersListScreen());
+    }
+
+    public KeyBinding getPlayersListKeybinding() {
+        return this.playersListKeybinding;
     }
 }
