@@ -1,7 +1,5 @@
 package austeretony.oxygen_playerslist.client.input;
 
-import org.lwjgl.input.Keyboard;
-
 import austeretony.oxygen_core.client.api.ClientReference;
 import austeretony.oxygen_core.client.api.OxygenGUIHelper;
 import austeretony.oxygen_playerslist.client.gui.playerslist.PlayersListScreen;
@@ -16,7 +14,7 @@ public class PlayersListKeyHandler {
 
     public PlayersListKeyHandler() {        
         if (PlayersListConfig.ENABLE_PLAYERSLIST_KEY.asBoolean() && !OxygenGUIHelper.isOxygenMenuEnabled())
-            ClientReference.registerKeyBinding(this.playersListKeybinding = new KeyBinding("key.oxygen_playerslist.playersList", Keyboard.KEY_TAB, "Oxygen")); 
+            ClientReference.registerKeyBinding(this.playersListKeybinding = new KeyBinding("key.oxygen_playerslist.playersList", PlayersListConfig.PLAYERSLIST_KEY.asInt(), "Oxygen")); 
     }
 
     @SubscribeEvent

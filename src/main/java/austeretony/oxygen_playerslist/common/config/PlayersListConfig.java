@@ -11,11 +11,17 @@ import austeretony.oxygen_playerslist.common.main.PlayersListMain;
 public class PlayersListConfig extends AbstractConfig {
 
     public static final ConfigValue
-    ENABLE_PLAYERSLIST_KEY = ConfigValueUtils.getValue("client", "enable_players_list_key", true);
+    ENABLE_PLAYERSLIST_KEY = ConfigValueUtils.getValue("client", "enable_players_list_key", true),
+    PLAYERSLIST_KEY = ConfigValueUtils.getValue("client", "players_list_key", 15);
 
     @Override
     public String getDomain() {
         return PlayersListMain.MODID;
+    }
+
+    @Override
+    public String getVersion() {
+        return PlayersListMain.VERSION_CUSTOM;
     }
 
     @Override
@@ -26,5 +32,6 @@ public class PlayersListConfig extends AbstractConfig {
     @Override
     public void getValues(List<ConfigValue> values) {
         values.add(ENABLE_PLAYERSLIST_KEY);
+        values.add(PLAYERSLIST_KEY);
     }
 }

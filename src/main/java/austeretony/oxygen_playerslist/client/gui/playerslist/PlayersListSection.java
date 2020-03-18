@@ -57,7 +57,7 @@ public class PlayersListSection extends AbstractGUISection {
 
         this.addElement(this.statusSorter = new OxygenSorter(13, 27, EnumSorting.DOWN, ClientReference.localize("oxygen_core.gui.status")));   
 
-        this.statusSorter.setClickListener((sorting)->{
+        this.statusSorter.setSortingListener((sorting)->{
             this.usernameSorter.reset();
             if (sorting == EnumSorting.DOWN)
                 this.sortPlayers(0);
@@ -67,7 +67,7 @@ public class PlayersListSection extends AbstractGUISection {
 
         this.addElement(this.usernameSorter = new OxygenSorter(19, 27, EnumSorting.INACTIVE, ClientReference.localize("oxygen_core.gui.username")));  
 
-        this.usernameSorter.setClickListener((sorting)->{
+        this.usernameSorter.setSortingListener((sorting)->{
             this.statusSorter.reset();
             if (sorting == EnumSorting.DOWN)
                 this.sortPlayers(2);
@@ -75,10 +75,9 @@ public class PlayersListSection extends AbstractGUISection {
                 this.sortPlayers(3);
         });
 
-        this.addElement(this.playersPanel = new OxygenScrollablePanel(this.screen, 6, 32, this.getWidth() - 15, 10, 1, 100, 15, EnumBaseGUISetting.TEXT_PANEL_SCALE.get().asFloat(), true));
+        this.addElement(this.playersPanel = new OxygenScrollablePanel(this.screen, 6, 33, this.getWidth() - 15, 10, 1, 100, 15, EnumBaseGUISetting.TEXT_PANEL_SCALE.get().asFloat(), true));
         this.addElement(this.searchField = new OxygenTextField(90, 16, 60, 24, ""));
         this.playersPanel.initSearchField(this.searchField);
-
         List<OxygenContextMenuAction> actions = OxygenManagerClient.instance().getGUIManager().getContextActions(PlayersListMain.PLAYER_LIST_MENU_SCREEN_ID);
         OxygenContextMenuAction[] array = new OxygenContextMenuAction[actions.size()];
         actions.toArray(array);
@@ -135,7 +134,7 @@ public class PlayersListSection extends AbstractGUISection {
 
     @Override
     public boolean keyTyped(char typedChar, int keyCode) {
-        if (!this.searchField.isDragged() && !this.hasCurrentCallback())
+        if (!this.searchField.isDragged())
             if (OxygenGUIHelper.isOxygenMenuEnabled()) {
                 if (keyCode == PlayersListScreen.PLAYERS_LIST_MENU_ENTRY.getKeyCode())
                     this.screen.close();

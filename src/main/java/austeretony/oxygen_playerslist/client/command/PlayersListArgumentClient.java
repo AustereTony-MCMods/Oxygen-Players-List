@@ -20,10 +20,10 @@ public class PlayersListArgumentClient implements ArgumentExecutor {
     @Override
     public void process(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
         if (args.length == 1)
-            OxygenHelperClient.scheduleTask(()->this.openMenu(), 100L, TimeUnit.MILLISECONDS);
+            OxygenHelperClient.scheduleTask(this::openPlayersListMenu, 100L, TimeUnit.MILLISECONDS);
     }
 
-    private void openMenu() {
+    private void openPlayersListMenu() {
         ClientReference.delegateToClientThread(()->ClientReference.displayGuiScreen(new PlayersListScreen()));
     }
 }

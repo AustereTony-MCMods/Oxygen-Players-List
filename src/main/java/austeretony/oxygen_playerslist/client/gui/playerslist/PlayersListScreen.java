@@ -38,7 +38,7 @@ public class PlayersListScreen extends AbstractGUIScreen {
             alignment = EnumGUIAlignment.CENTER;
             break;
         }
-        return new GUIWorkspace(this, 190, 198).setAlignment(alignment, 0, 0);
+        return new GUIWorkspace(this, 190, 199).setAlignment(alignment, 0, 0);
     }
 
     @Override

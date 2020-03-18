@@ -1,17 +1,17 @@
 package austeretony.oxygen_playerslist.client.gui.menu;
 
-import org.lwjgl.input.Keyboard;
-
 import austeretony.oxygen_core.client.api.ClientReference;
 import austeretony.oxygen_core.client.gui.menu.OxygenMenuEntry;
 import austeretony.oxygen_playerslist.client.gui.playerslist.PlayersListScreen;
 import austeretony.oxygen_playerslist.client.settings.EnumPlayersListClientSetting;
+import austeretony.oxygen_playerslist.common.config.PlayersListConfig;
+import austeretony.oxygen_playerslist.common.main.PlayersListMain;
 
 public class PlayersListMenuEntry implements OxygenMenuEntry {
 
     @Override
     public int getId() {
-        return 50;
+        return PlayersListMain.PLAYER_LIST_MENU_SCREEN_ID;
     }
 
     @Override
@@ -21,7 +21,7 @@ public class PlayersListMenuEntry implements OxygenMenuEntry {
 
     @Override
     public int getKeyCode() {
-        return Keyboard.KEY_TAB;
+        return PlayersListConfig.PLAYERSLIST_KEY.asInt();
     }
 
     @Override

@@ -30,7 +30,7 @@ public enum EnumPlayersListGUISetting {
     }
 
     public static void register() {
-        for (EnumPlayersListGUISetting setting : EnumPlayersListGUISetting.values())
+        for (EnumPlayersListGUISetting setting : values())
             OxygenManagerClient.instance().getClientSettingManager().register(SettingValueUtils.getValue(setting.type, setting.key, setting.baseValue));
     }
 }
